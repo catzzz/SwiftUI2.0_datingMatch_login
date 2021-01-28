@@ -8,13 +8,108 @@
 import SwiftUI
 
 struct SignUpView: View {
+    
+    @ObservedObject var model = ModelData()
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack(alignment: Alignment(horizontal: .trailing,vertical:.top), content:{
+            VStack{
+                Spacer(minLength: 0)
+                ZStack{
+                    if UIScreen.main.bounds.height < 750 {
+                        Image("logo")
+                            .resizable()
+                            .frame(width:130, height:130)
+                    }else{
+                        Image("logo")
+                    }
+                    
+                }
+                .padding(.horizontal)
+                .padding(.vertical,20)
+                .background(Color.white.opacity(0.2))
+                .cornerRadius(30)
+                .padding(.top)
+                
+                VStack(spacing:4){
+                    HStack(spacing: 0) {
+                        Text("New")
+                            .font(.system(size:35, weight:.heavy))
+                            .foregroundColor(.white)
+                        Text("Profile")
+                            .font(.system(size:35, weight:.heavy))
+                            .foregroundColor(Color("txt"))
+                    }
+                    
+                    Text("let choose your match")
+                        .foregroundColor(Color.black.opacity(0.3))
+                        .fontWeight(.heavy)
+                }
+               
+                
+                
+                
+                VStack(spacing:20){
+                    
+                    CustomTextField(image: "person", placeHolder: "Email", txt: $model.email_SignUp)
+                    CustomTextField(image: "lock", placeHolder: "password", txt: $model.password_SignUp)
+                    CustomTextField(image: "lock", placeHolder: "re-password", txt: $model.reEnterPassword)
+                    
+                    
+                }
+                .padding(.top)
+                
+                Button(action:{
+                    model.signUp()
+                }){
+                    Text("SIGNUP")
+                        .fontWeight(.bold)
+                        .foregroundColor(Color("bottom"))
+                        .padding(.vertical)
+                        .frame(width: UIScreen.main.bounds.width - 30)
+                        .background(Color.white)
+                        .clipShape(Capsule())
+                }
+                .padding(.top, 22)
+                
+                Spacer(minLength: 0)
+                
+            }
+            
+            Button(action: {model.isSignUp.toggle()}){
+                Image(systemName: "xmark")
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.black.opacity(0.6))
+                    .clipShape(Circle())
+            }
+            .padding(.trailing)
+            .padding(.top, 20)
+            
+            if model.isLoading{
+                LoadingView()
+            }
+        })
+        
+        .background(LinearGradient(gradient: .init(colors:[Color("top"), Color("bottom")]), startPoint:.top, endPoint:.bottom))
+        .ignoresSafeArea(.all, edges:.all)
+        .alert(isPresented: $model.alert){
+            Alert(title: Text("Message"), message:Text(model.alertMsg), dismissButton:.destructive(Text("Ok"), action:{
+                // if email link sent means closing the signup view
+                
+                if model.alertMsg == "Email  Verification Has Been Sent!!! Verify Your email" {
+                    model.isSignUp.toggle()
+                    model.email_SignUp = ""
+                    model.password_SignUp = ""
+                    model.reEnterPassword = ""
+                }
+            }))
+        }
     }
 }
 
 struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
-        SignUpView()
+        SignUpView().previewDevice("iPhone 12")
     }
 }
